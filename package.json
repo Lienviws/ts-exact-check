@@ -1,9 +1,9 @@
 {
-  "name": "ts-exact-check",
+  "name": "ts-exactly-check",
   "version": "0.1.0",
-  "description": "check exact typescript files as you want",
+  "description": "Check typescript files exactly as you want.",
   "author": "lienviws",
-  "homepage": "https://github.com/Lienviws/ts-exact-check",
+  "homepage": "https://github.com/Lienviws/ts-exactly-check",
   "main": "dist/index.js",
   "bin": {
     "ts-check": "./bin/ts-check.js"

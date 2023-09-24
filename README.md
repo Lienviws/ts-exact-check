@@ -1,4 +1,4 @@
-# ts-exact-check
+# ts-exactly-check
 
 只检查你想检查的那些 TypeScript 文件。
 
@@ -12,7 +12,7 @@
 
 ## 安装
 
->  npm i ts-exact-check -D
+>  npm i ts-exactly-check -D
 
 ## 使用方式
 
@@ -47,9 +47,9 @@ module.exports = {
 
 ### tsconfig 配置
 
-`ts-exact-check` 使用 TypeScript5。它会读取项目下的 `tsconfig.json`，作为内置 `tsx`运行期间的基础配置。
+`ts-exactly-check` 使用 TypeScript5。它会读取项目下的 `tsconfig.json`，作为内置 `tsx`运行期间的基础配置。
 
-有一些 tsconfig 的配置在检查模式下是必要的，还有一些会影响编译速度，ts-exact-check 会将它们强行覆盖，这部分的配置无法通过项目下的 tsconfig.json 设置。
+有一些 tsconfig 的配置在检查模式下是必要的，还有一些会影响编译速度，ts-exactly-check 会将它们强行覆盖，这部分的配置无法通过项目下的 tsconfig.json 设置。
 
 ```js
 {
