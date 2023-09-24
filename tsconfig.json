@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "declaration": true,
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "lib": [
+      "dom",
+      "esnext",
+      "ES2018.Intl",
+      "ESNext.Intl",
+      "ES2017.Intl"
+    ],
+  },
+  "declaration": true,
+  "composite": true,
+  "include": [
+    "src",
+  ]
+}
