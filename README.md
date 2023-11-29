@@ -38,6 +38,10 @@ module.exports = {
   ],
   // 忽略的文件(这里是和 include 配合使用的，可以忽略里面的某几个文件)
   ignore: ['src/components/Login/Panel/_index.tsx'],
+  /** 如果设置了 noImplicitAny true。需要检查的文件(glob 格式)。不设置默认全部。 */
+  anyCheckInclude?: string[];
+  /** 如果设置了 noImplicitAny true。需要忽略的文件(glob 格式) */
+  anyCheckExclude?: string[];
   // 和 ignore 作用一样，语义上用来标记暂时不检查，但后续需要完善类型的文件
   todo: [],
 };

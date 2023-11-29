@@ -14,6 +14,10 @@ export interface TSCheckConfig {
   include?: string[];
   /** 忽略的文件(这里是和 include 配合使用的，可以忽略里面的某几个文件) */
   ignore?: string[];
+  /** 如果设置了 noImplicitAny true。需要检查的文件(glob 格式)。不设置默认全部。 */
+  anyCheckInclude?: string[];
+  /** 如果设置了 noImplicitAny true。需要忽略的文件(glob 格式) */
+  anyCheckExclude?: string[];
   /** 和 ignore 作用一样，语义上用来标记暂时不检查，但后续需要完善类型的文件 */
   todo?: string[];
   /** 保留用，用来调试。这个配置可以覆盖内部的 TSConfig 配置 */
@@ -60,6 +64,8 @@ export async function getUserConfig(tsconfig: ts.ParsedCommandLine) {
     types = [],
     ignore = [],
     include = [],
+    anyCheckInclude = [],
+    anyCheckExclude = [],
     todo = [],
     __innerConfig = {},
   } = originConfig;
@@ -94,6 +100,8 @@ export async function getUserConfig(tsconfig: ts.ParsedCommandLine) {
     __innerConfig,
     originInclude: include,
     originExclude,
+    anyCheckInclude,
+    anyCheckExclude,
   };
   return config;
 }
@@ -158,6 +166,39 @@ export function isMatchFile(
     micromatch.isMatch(relativePath, excludePath)
   );
   return includeMatch && !excludeMatch;
+}
+
+/**
+ * 检查文件是否满足 anyCheckInclude 和 anyCheckExclude 的规则
+ */
+export function isMatchNoImplicitAnyCheckFile(
+  include: string[] = [],
+  exclude: string[] = [],
+  targetPath: string
+) {
+  const relativePath = path.relative(rootPath, targetPath);
+  const includeMatch =
+    include.length === 0 ||
+    include.find((includePath) =>
+      micromatch.isMatch(relativePath, includePath)
+    );
+  const excludeMatch = exclude.find((excludePath) =>
+    micromatch.isMatch(relativePath, excludePath)
+  );
+  return includeMatch && !excludeMatch;
+}
+
+/**
+ * 属于 noImplicitAny 的错误
+ */
+export function isMatchAnyCheck(message: string | ts.DiagnosticMessageChain) {
+  const keyMessage = `implicitly has an 'any' type.`;
+  if (typeof message === "string") {
+    if (message.endsWith(keyMessage)) return true;
+  } else {
+    if (message.messageText.endsWith(keyMessage)) return true;
+  }
+  return false;
 }
 
 export function getSysTime() {

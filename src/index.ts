@@ -5,7 +5,9 @@ import {
   getSysTime,
   getTsConfig,
   getUserConfig,
+  isMatchAnyCheck,
   isMatchFile,
+  isMatchNoImplicitAnyCheckFile,
 } from "./lib";
 
 export { TSCheckConfig } from "./lib";
@@ -69,6 +71,8 @@ function compile(
     .concat(emitResult.diagnostics);
 
   allDiagnostics.forEach((diagnostic) => {
+    const { messageText } = diagnostic
+
     if (diagnostic.file) {
       // 这块是文件内的 ts error
       if (
@@ -77,12 +81,20 @@ function compile(
         return;
       }
 
+      /** 忽略 noImplicitAny 的文件的检查 */
+      if (
+        isMatchAnyCheck(messageText) &&
+        !isMatchNoImplicitAnyCheckFile(config.anyCheckInclude, config.anyCheckExclude, diagnostic.file.fileName)
+      ) {
+        return
+      }
+
       const { line, character } = ts.getLineAndCharacterOfPosition(
         diagnostic.file,
         diagnostic.start!
       );
       const message = ts.flattenDiagnosticMessageText(
-        diagnostic.messageText,
+        messageText,
         "\n"
       );
       console.log(
@@ -96,7 +108,7 @@ function compile(
     } else {
       // 这里一般是配置错误
       console.log(
-        chalk.red(ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"))
+        chalk.red(ts.flattenDiagnosticMessageText(messageText, "\n"))
       );
       errorLength++;
     }
