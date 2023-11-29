@@ -30,6 +30,6 @@
     "build": "npm run build:lib",
     "build:lib": "rimraf dist && tsc",
     "clean": "rimraf lib es",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   }
 }
