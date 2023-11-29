@@ -1,93 +1,94 @@
 # ts-exactly-check
 
-只检查你想检查的那些 TypeScript 文件。
+Check only those TypeScript files you want to check.
 
-## 背景
+[中文文档](./docs/README_zh.md)
 
-传统的 TypeScript 在使用 tsc 命令跑检查时，是全量跑。对于在重构成 TS 的项目很不友好。
+## background
 
-但是 TS 如果少了 tsc 检查的能力，相当于废了一半。
+When traditional TypeScript uses the tsc command to run checks, it runs in full. Very unfriendly to projects that are being restructured into TS.
 
-这个工具就是用来解决这个问题的，它会忽略指定文件之外的 ts error，帮助增量式重构为 TypeScript。
+But if TS lacks the ability to check tsc, it is equivalent to being half useless.
 
-## 安装
+This tool is used to solve this problem. It will ignore ts errors outside the specified file and help incremental refactoring to TypeScript.
 
->  npm i ts-exactly-check -D
+## Install
 
-## 使用方式
+> npm i ts-exactly-check -D
 
-根项目下运行 `npx ts-check`
+## Usage
 
-## 配置
+Run `npx ts-check` under the root project
 
-### 检查规则
+## Configuration
 
-在项目根目录下的文件:  `tscheck.config.[t|j]s`
+### Check rules
+
+File in the project root directory: `tscheck.config.[t|j]s`
 
 ```ts
 // ${workspaceFolder}/tscheck.config.ts
 module.exports = {
-  // 全局 .d.ts 文件的依赖
-  types: ['src/global.d.ts'],
-  // 忽略检查的规则(glob 格式)
-  exclude: ['**/__tests__/**/*'],
-  // 需要检查的规则(glob 格式)
-  include: [
-    'mobile/src/types/**/*',
-    'src/components/Login/**/*',
-  ],
-  // 忽略的文件(这里是和 include 配合使用的，可以忽略里面的某几个文件)
-  ignore: ['src/components/Login/Panel/_index.tsx'],
-  /** 如果设置了 noImplicitAny true。需要检查的文件(glob 格式)。不设置默认全部。 */
-  anyCheckInclude?: string[];
-  /** 如果设置了 noImplicitAny true。需要忽略的文件(glob 格式) */
-  anyCheckExclude?: string[];
-  // 和 ignore 作用一样，语义上用来标记暂时不检查，但后续需要完善类型的文件
-  todo: [],
+   // Dependencies of global .d.ts files
+   types: ['src/global.d.ts'],
+   // Ignore checked rules (glob format)
+   exclude: ['**/__tests__/**/*'],
+   // Rules to be checked (glob format)
+   include: [
+     'mobile/src/types/**/*',
+     'src/components/Login/**/*',
+   ],
+   //Ignored files (used here with include, you can ignore certain files inside)
+   ignore: ['src/components/Login/Panel/_index.tsx'],
+   /** true if noImplicitAny is set. File to check (glob format). Do not set the default all. */
+   anyCheckInclude?: string[];
+   /** true if noImplicitAny is set. Files to be ignored (glob format) */
+   anyCheckExclude?: string[];
+   // It has the same function as ignore. It is semantically used to mark files that will not be checked temporarily, but the type needs to be improved later.
+   todo: [],
 };
 ```
 
 
 
-### tsconfig 配置
+### tsconfig configuration
 
-`ts-exactly-check` 使用 TypeScript5。它会读取项目下的 `tsconfig.json`，作为内置 `tsx`运行期间的基础配置。
+`ts-exactly-check` uses TypeScript5. It will read `tsconfig.json` under the project as the basic configuration during the operation of the built-in `tsx`.
 
-有一些 tsconfig 的配置在检查模式下是必要的，还有一些会影响编译速度，ts-exactly-check 会将它们强行覆盖，这部分的配置无法通过项目下的 tsconfig.json 设置。
+Some tsconfig configurations are necessary in check mode, and some will affect compilation speed. ts-exactly-check will forcibly overwrite them. This part of the configuration cannot be set through tsconfig.json under the project.
 
 ```js
 {
-    noEmit: true, // 不输出文件
-    noEmitHelpers: true, // 不生成 helper 函数
-    importHelpers: false, // 不引入 helper 函数
-    declaration: false, // 不生成声明文件，开启后会自动生成声明文件
-    declarationMap: false, // 不为声明文件生成sourceMap
-    sourceMap: false, // 不生成目标文件的sourceMap文件
-    inlineSourceMap: false, // 不生成目标文件的inline SourceMap，inline SourceMap会包含在生成的js文件中
+     noEmit: true, // Do not output files
+     noEmitHelpers: true, // Do not generate helper functions
+     importHelpers: false, // Do not introduce helper functions
+     declaration: false, // Do not generate a declaration file. A declaration file will be automatically generated after turning it on.
+     declarationMap: false, // Do not generate sourceMap for declaration files
+     sourceMap: false, // Do not generate a sourceMap file for the target file
+     inlineSourceMap: false, // Do not generate inline SourceMap of the target file, inline SourceMap will be included in the generated js file
 }
 ```
 
 
 
-## 和 git hooks 配合
+## Cooperate with git hooks
 
-可以结合 git 的钩子，做自动化运行。
+It can be combined with git hooks to automate operations.
 
-比如：使用 `husky`，开一个 `pre-push` 的钩子，每次在 git push 的时候做检查。
+For example: use `husky`, open a `pre-push` hook, and check it every time during git push.
 
-当出现 ts error 的时候，会阻塞 push。
+When a ts error occurs, push will be blocked.
 
 ```sh
-# 1. 安装 husky
+# 1. Install husky
 npm install husky --save-dev
 
-# 2. 开启 git hooks
+# 2. Enable git hooks
 npx husky install
 
-# 3. 设置在 npm 初始化后自动开启 hooks
+# 3. Set hooks to automatically open after npm initialization
 npm pkg set scripts.prepare="husky install"
 
-# 4. 增加对应的 git 钩子检查命令
+# 4. Add corresponding git hook check command
 npx husky add .husky/pre-push "npx ts-check"
 ```
-
