@@ -40,6 +40,12 @@ module.exports = {
    ],
    //Ignored files (used here with include, you can ignore certain files inside)
    ignore: ['src/components/Login/Panel/_index.tsx'],
+   /**
+    * noImplicitAny related error code.
+    *Default value: [2339,7005,7006,7008,7010,7011,7013,7015,7016,7017,7018,7019,7022,7023,7031,7034,7051,7053,7057]
+    * Here is a supplement in case it is not enough.
+    */
+   noImplicitAnyCode?: number[];
    /** true if noImplicitAny is set. File to check (glob format). Do not set the default all. */
    anyCheckInclude?: string[];
    /** true if noImplicitAny is set. Files to be ignored (glob format) */

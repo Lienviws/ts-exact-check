@@ -38,6 +38,12 @@ module.exports = {
   ],
   // 忽略的文件(这里是和 include 配合使用的，可以忽略里面的某几个文件)
   ignore: ['src/components/Login/Panel/_index.tsx'],
+  /**
+   * noImplicitAny 相关的 error code。
+   * 默认值：[2339,7005,7006,7008,7010,7011,7013,7015,7016,7017,7018,7019,7022,7023,7031,7034,7051,7053,7057]
+   * 这里是防止不够用，作为补充。
+   */
+  noImplicitAnyCode?: number[];
   /** 如果设置了 noImplicitAny true。需要检查的文件(glob 格式)。不设置默认全部。 */
   anyCheckInclude?: string[];
   /** 如果设置了 noImplicitAny true。需要忽略的文件(glob 格式) */

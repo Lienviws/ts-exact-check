@@ -5,7 +5,6 @@ import {
   getSysTime,
   getTsConfig,
   getUserConfig,
-  isMatchAnyCheck,
   isMatchFile,
   isMatchNoImplicitAnyCheckFile,
 } from "./lib";
@@ -46,7 +45,7 @@ async function main() {
     ...config.__innerConfig,
   };
 
-  compile([...config.types, ...config.include], compilerOptions, config);
+  compile([...config.types, ...config.fileInclude], compilerOptions, config);
 }
 
 /**
@@ -61,57 +60,50 @@ function compile(
     rootNames: fileNames,
     options,
   });
-  const excludes = [...config.originExclude, ...config.ignore, ...config.todo];
   let errorLength = 0;
 
   const emitResult = program.emit();
 
+  console.log(chalk.blue("【提示】扫描完毕, 准备输出"), `${getSysTime()}ms`);
+
+  // 获取语义诊断信息
   const allDiagnostics = ts
     .getPreEmitDiagnostics(program)
     .concat(emitResult.diagnostics);
 
-  allDiagnostics.forEach((diagnostic) => {
-    const { messageText } = diagnostic
+  // 创建一个 FormatDiagnosticsHost 对象
+  const formatDiagnosticsHost: ts.FormatDiagnosticsHost = {
+    getCurrentDirectory: ts.sys.getCurrentDirectory,
+    getCanonicalFileName: (fileName) => fileName,
+    getNewLine: () => ts.sys.newLine,
+  };
 
+  allDiagnostics.forEach((diagnostic) => {
+    const { code } = diagnostic;
     if (diagnostic.file) {
+      const { fileName } = diagnostic.file;
+
       // 这块是文件内的 ts error
-      if (
-        !isMatchFile(config.originInclude, excludes, diagnostic.file.fileName)
-      ) {
+      if (!isMatchFile(fileName, config)) {
         return;
       }
 
       /** 忽略 noImplicitAny 的文件的检查 */
       if (
-        isMatchAnyCheck(messageText) &&
-        !isMatchNoImplicitAnyCheckFile(config.anyCheckInclude, config.anyCheckExclude, diagnostic.file.fileName)
+        config.noImplicitAnyCode.includes(code) && // noImplicitAny 的 error code(即确认这条error属于noImplicitAny配置)
+        !isMatchNoImplicitAnyCheckFile(fileName, config)
       ) {
-        return
+        return;
       }
-
-      const { line, character } = ts.getLineAndCharacterOfPosition(
-        diagnostic.file,
-        diagnostic.start!
-      );
-      const message = ts.flattenDiagnosticMessageText(
-        messageText,
-        "\n"
-      );
-      console.log(
-        chalk.red(
-          `${diagnostic.file.fileName} (${line + 1},${
-            character + 1
-          }): ${message}`
-        )
-      );
-      errorLength++;
     } else {
       // 这里一般是配置错误
-      console.log(
-        chalk.red(ts.flattenDiagnosticMessageText(messageText, "\n"))
-      );
-      errorLength++;
     }
+    const colorMessage = ts.formatDiagnosticsWithColorAndContext(
+      [diagnostic],
+      formatDiagnosticsHost
+    );
+    console.log(colorMessage);
+    errorLength++;
   });
 
   const timeInfo = `${getSysTime()}ms`;

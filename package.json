@@ -1,6 +1,6 @@
 {
   "name": "ts-exactly-check",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Check typescript files exactly as you want.",
   "author": "lienviws",
   "homepage": "https://github.com/Lienviws/ts-exactly-check",
@@ -17,19 +17,18 @@
   ],
   "dependencies": {
     "chalk": "^4.0.0",
-    "glob": "^7.0.0",
-    "micromatch": "^4.0.5",
+    "cosmiconfig": "^9.0.0",
+    "glob": "^10.3.10",
+    "minimatch": "^9.0.3",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@types/glob": "^7.0.0",
-    "@types/micromatch": "^4.0.2",
+    "@types/node": "^20.12.2",
     "rimraf": "^5.0.1"
   },
   "scripts": {
     "build": "npm run build:lib",
     "build:lib": "rimraf dist && tsc",
-    "clean": "rimraf lib es",
-    "prepare": "npm run build"
+    "clean": "rimraf lib es"
   }
 }
